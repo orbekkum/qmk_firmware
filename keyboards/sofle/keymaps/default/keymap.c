@@ -1,25 +1,22 @@
 // Copyright 2023 QMK
 // SPDX-License-Identifier: GPL-2.0-or-later
+#include <stdio.h>
+
 #include QMK_KEYBOARD_H
+
+// Light combinations
+#define SET_LAYER_ID(hsv) 	\
+	{0, 32, hsv}
 
 enum sofle_layers {
     /* _M_XYZ = Mac Os, _W_XYZ = Win/Linux */
     _QWERTY,
-    _COLEMAK,
     _LOWER,
     _RAISE,
     _ADJUST,
 };
 
-enum custom_keycodes {
-    KC_PRVWD = QK_USER,
-    KC_NXTWD,
-    KC_LSTRT,
-    KC_LEND
-};
-
 #define KC_QWERTY PDF(_QWERTY)
-#define KC_COLEMAK PDF(_COLEMAK)
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /*
@@ -45,38 +42,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_LSFT,  KC_Z,   KC_X,       KC_C,         KC_V,         KC_B,    KC_MUTE,     XXXXXXX,KC_N,   KC_M, KC_COMM,  KC_DOT, KC_SLSH, RSFT_T(KC_BSLS),
               KC_LCTL, KC_LALT, KC_LGUI, TL_LOWR, KC_ENT,                          RALT_T(KC_SPC), RSFT_T(KC_BSPC), TL_UPPR, XXXXXXX, XXXXXXX
 ),
-/*
- * COLEMAK
- * ,-----------------------------------------.                    ,-----------------------------------------.
- * |  `   |   1  |   2  |   3  |   4  |   5  |                    |   6  |   7  |   8  |   9  |   0  |  `   |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * | ESC  |   Q  |   W  |   F  |   P  |   G  |                    |   J  |   L  |   U  |   Y  |   ;  | Bspc |
- * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * | TAB  |   A  |   R  |   S  |   T  |   D  |-------.    ,-------|   H  |   N  |   E  |   I  |   O  |  '   |
- * |------+------+------+------+------+------|  MUTE |    |       |------+------+------+------+------+------|
- * |LShift|   Z  |   X  |   C  |   V  |   B  |-------|    |-------|   K  |   M  |   ,  |   .  |   /  |RShift|
- * `-----------------------------------------/       /     \      \-----------------------------------------'
- *            | LGUI | LAlt | LCTR |LOWER | /Enter  /       \Space \  |RAISE | RCTR | RAlt | RGUI |
- *            |      |      |      |      |/       /         \      \ |      |      |      |      |
- *            `----------------------------------'           '------''---------------------------'
- */
-
-[_COLEMAK] = LAYOUT(
-  KC_GRV,   KC_1,   KC_2,    KC_3,    KC_4,    KC_5,                      KC_6,    KC_7,    KC_8,    KC_9,    KC_0,  KC_GRV,
-  KC_ESC,   KC_Q,   KC_W,    KC_F,    KC_P,    KC_G,                      KC_J,    KC_L,    KC_U,    KC_Y, KC_SCLN,  KC_BSPC,
-  KC_TAB,   KC_A,   KC_R,    KC_S,    KC_T,    KC_D,                      KC_H,    KC_N,    KC_E,    KC_I,    KC_O,  KC_QUOT,
-  KC_LSFT,  KC_Z,   KC_X,    KC_C,    KC_V,    KC_B, KC_MUTE,      XXXXXXX,KC_K,    KC_M, KC_COMM,  KC_DOT, KC_SLSH,  KC_RSFT,
-                 KC_LGUI,KC_LALT,KC_LCTL,TL_LOWR, KC_ENT,        KC_SPC,  TL_UPPR, KC_RCTL, KC_RALT, KC_RGUI
-),
 /* LOWER
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |   `  |  F1  |  F2  |  F3  |  F4  |  F5  |                    |  F6  |  F7  |  F8  |  F9  | F10  | F11  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
  * |      |   !  |   @  |   #  |   $  |   %  |                    |   6  | Home |  Up  |  End |      | F12  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------.    ,-------|   ^  | Left | Down | Rigth|      |      |
+ * |UG_TOGG|hue^ |sat ^ | bri ^|      |      |-------.    ,-------|   ^  | Left | Down | Rigth|      |      |
  * |------+------+------+------+------+------|  MUTE |    |       |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------|    |-------|   {  |   }  |   [  |   ]  |   (  |   )  |
+ * | mode |hue dn|sat d |bri dn|      |      |-------|    |-------|   {  |   }  |   [  |   ]  |   (  |   )  |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *            | LCTR | LAlt | LGUI |LOWER | /Enter  /       \Space \  | Del  | RAlt | RAISE|  \   |
  *            |      |      |      |      |/       /         \      \ |      |      |      |      |
@@ -85,8 +59,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_LOWER] = LAYOUT(
   KC_GRV,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,
   _______, KC_EXLM, KC_AT,   KC_HASH,  KC_DLR,  KC_PERC,                     KC_PGUP, KC_HOME, KC_UP, KC_END, KC_TRNS, KC_F12, 
-  _______, _______, _______, _______,  _______, KC_CAPS,                     KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, 
-  _______, _______, _______, _______, _______, _______, _______,       _______, KC_LCBR, KC_RCBR, KC_LBRC, KC_RBRC, KC_LPRN, KC_RPRN,
+  UG_TOGG, UG_HUEU,UG_SATU, UG_VALU,  _______, KC_CAPS,                     KC_PGDN, KC_LEFT, KC_DOWN, KC_RGHT, _______, _______, 
+  UG_NEXT, UG_HUED,UG_SATD, UG_VALD, _______, _______, _______,       _______, KC_LCBR, KC_RCBR, KC_LBRC, KC_RBRC, KC_LPRN, KC_RPRN,
                     _______, _______, _______, _______, _______,       _______, KC_DEL, _______, _______, _______
 ),
 /* RAISE
@@ -104,10 +78,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  *            `----------------------------------'           '------''---------------------------'
  */
 [_RAISE] = LAYOUT(
-  KC_GRV,  _______ , _______ , _______ , _______ , _______,                       _______,  _______  , _______,  _______ ,  _______ ,_______,
+  KC_GRV,   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       KC_F6,   KC_F7,   KC_F8,   KC_F9,  KC_F10,  KC_F11,
   _______,  KC_INS,  KC_PSCR,   KC_APP,  XXXXXXX, XXXXXXX,                        KC_PGUP, KC_HOME,   KC_UP, KC_END,C(KC_BSPC), KC_BSPC,
   _______, KC_LALT,  KC_LCTL,  KC_LSFT,  XXXXXXX, KC_CAPS,                        KC_PGDN,  KC_LEFT, KC_DOWN, KC_RGHT,  KC_DEL, KC_BSPC,
-  _______, G(KC_Z), G(KC_X), G(KC_C), G(KC_V), XXXXXXX,  _______,       _______,  XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,   XXXXXXX, _______,
+  _______, G(KC_Z), G(KC_X), G(KC_C), G(KC_V), XXXXXXX,  _______,       _______,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,   XXXXXXX, _______,
+  //  _______, G(KC_Z), G(KC_X), G(KC_C), G(KC_V), XXXXXXX,  _______,       _______,  XXXXXXX, KC_LSTRT, XXXXXXX, KC_LEND,   XXXXXXX, _______,
+
                          _______, _______, _______, _______, _______,       _______, KC_DEL, _______, _______, _______
 ),
 /* ADJUST
@@ -126,89 +102,69 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
   [_ADJUST] = LAYOUT(
   XXXXXXX , XXXXXXX,  XXXXXXX,  XXXXXXX ,XXXXXXX,  XXXXXXX,                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  QK_BOOT , XXXXXXX,KC_QWERTY,KC_COLEMAK,CG_TOGG,  XXXXXXX,                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+  QK_BOOT , XXXXXXX,KC_QWERTY,KC_QWERTY,CG_TOGG,  XXXXXXX,                       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   XXXXXXX , XXXXXXX,CG_TOGG, XXXXXXX,    XXXXXXX,  XXXXXXX,                       XXXXXXX, KC_VOLD, KC_MUTE, KC_VOLU, XXXXXXX, XXXXXXX,
   XXXXXXX , XXXXXXX,XXXXXXX, XXXXXXX,    XXXXXXX,  XXXXXXX, XXXXXXX,     XXXXXXX, XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, XXXXXXX,
                    _______, _______, _______, _______, _______,     _______, _______, _______, _______, _______
   )
 };
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    switch (keycode) {
-        case KC_PRVWD:
-            if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    register_mods(mod_config(MOD_LALT));
-                    register_code(KC_LEFT);
-                } else {
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_LEFT);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LALT));
-                    unregister_code(KC_LEFT);
-                } else {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_LEFT);
-                }
-            }
-            break;
-        case KC_NXTWD:
-             if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    register_mods(mod_config(MOD_LALT));
-                    register_code(KC_RIGHT);
-                } else {
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_RIGHT);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LALT));
-                    unregister_code(KC_RIGHT);
-                } else {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_RIGHT);
-                }
-            }
-            break;
-        case KC_LSTRT:
-            if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                     //CMD-arrow on Mac, but we have CTL and GUI swapped
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_LEFT);
-                } else {
-                    register_code(KC_HOME);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_LEFT);
-                } else {
-                    unregister_code(KC_HOME);
-                }
-            }
-            break;
-        case KC_LEND:
-            if (record->event.pressed) {
-                if (keymap_config.swap_lctl_lgui) {
-                    //CMD-arrow on Mac, but we have CTL and GUI swapped
-                    register_mods(mod_config(MOD_LCTL));
-                    register_code(KC_RIGHT);
-                } else {
-                    register_code(KC_END);
-                }
-            } else {
-                if (keymap_config.swap_lctl_lgui) {
-                    unregister_mods(mod_config(MOD_LCTL));
-                    unregister_code(KC_RIGHT);
-                } else {
-                    unregister_code(KC_END);
-                }
-            }
-            break;
-    }
-    return true;
+#ifdef RGBLIGHT_ENABLE
+//char layer_state_str[70];
+// Now define the array of layers. Later layers take precedence
+
+// QWERTY,
+// Light on inner column and underglow
+const rgblight_segment_t PROGMEM layer_qwerty_lights[] = RGBLIGHT_LAYER_SEGMENTS(
+  SET_LAYER_ID(HSV_BLUE)
+);
+
+// _LOWER,
+// Light on inner column and underglow
+const rgblight_segment_t PROGMEM layer_lower_lights[] = RGBLIGHT_LAYER_SEGMENTS(
+  SET_LAYER_ID(HSV_PURPLE)
+);
+// _RAISE,
+// Light on inner column and underglow
+const rgblight_segment_t PROGMEM layer_raise_lights[] = RGBLIGHT_LAYER_SEGMENTS(
+  SET_LAYER_ID(HSV_MAGENTA)
+);
+
+// _ADJ,
+// Light on inner column and underglow
+const rgblight_segment_t PROGMEM layer_adjust_lights[] = RGBLIGHT_LAYER_SEGMENTS(
+    SET_LAYER_ID(HSV_GOLD)
+);
+
+// Caps,
+// Light on inner column and underglow
+const rgblight_segment_t PROGMEM layer_caps_lights[] = RGBLIGHT_LAYER_SEGMENTS(
+    {0, 2, HSV_RED},       // Light 4 LEDs, starting with LED 6
+    {12, 4, HSV_RED}, 
+    {16+5, 6, HSV_RED} 
+);
+
+const rgblight_segment_t* const PROGMEM my_rgb_layers[] = RGBLIGHT_LAYERS_LIST(
+    layer_qwerty_lights,
+	layer_lower_lights,
+    layer_raise_lights,
+    layer_adjust_lights,
+    layer_caps_lights
+);
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+    led_t led_usb_state = host_keyboard_led_state();
+	rgblight_set_layer_state(0, layer_state_cmp(state, _QWERTY) && layer_state_cmp(default_layer_state,_QWERTY));
+	rgblight_set_layer_state(1, layer_state_cmp(state, _LOWER));
+	rgblight_set_layer_state(2, layer_state_cmp(state, _RAISE));
+	rgblight_set_layer_state(3, layer_state_cmp(state, _ADJUST));
+    rgblight_set_layer_state(4, led_usb_state.caps_lock);
+
+    return state;
 }
+void keyboard_post_init_user(void) {
+    // Enable the LED layers
+    rgblight_layers = my_rgb_layers;
+	rgblight_mode(10);// haven't found a way to set this in a more useful way
+}
+#endif
